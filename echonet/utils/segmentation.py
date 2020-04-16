@@ -231,8 +231,8 @@ def run(num_epochs=50,
                     x = x.numpy()
                     for (i, (filename, offset)) in enumerate(zip(filenames, length)):
                         # Extract one video and segmentation predictions
-                        video = x[start:(start + offset), ...]
-                        logit = y[start:(start + offset), 0, :, :]
+                        video = x[start:(start + offset), ...] # offset (from length in batch) is the length of each video.
+                        logit = y[start:(start + offset), 0, :, :] # network response for a particular video, f x h x w
 
                         # Un-normalize video
                         video *= std.reshape(1, 3, 1, 1)
@@ -253,7 +253,7 @@ def run(num_epochs=50,
                         video = np.concatenate((video, np.zeros_like(video)), 2)
 
                         # Compute size of segmentation per frame
-                        size = (logit > 0).sum((1, 2))
+                        size = (logit > 0).sum((1, 2)) # logits is f x h x w, so this is number of on pixels for each frame.
 
                         # Identify systole frames with peak detection
                         trim_min = sorted(size)[round(len(size) ** 0.05)]
@@ -263,7 +263,9 @@ def run(num_epochs=50,
 
                         # Write sizes and frames to file
                         for (frame, s) in enumerate(size):
-                            g.write("{},{},{},{},{},{}\n".format(f, frame, s, 1 if frame == large_index[i] else 0, 1 if frame == small_index[i] else 0, 1 if frame in systole else 0))
+                            g.write("{},{},{},{},{},{}\n".format(f, 
+                                                                 frame, 
+                                                                 s, 1 if frame == large_index[i] else 0, 1 if frame == small_index[i] else 0, 1 if frame in systole else 0))
 
                         # Plot sizes
                         fig = plt.figure(figsize=(size.shape[0] / 50 * 1.5, 3))
