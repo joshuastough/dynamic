@@ -1,9 +1,0 @@
-# This file is for additional pip installs on top of
-# the conda env jupyter37, that had working jupyterlab-matplotlib
-# (widget stuff). From dynamic's original requirements I've
-# removed already-conda-installed packages. 
-# Within a clone of jupyter37, 
-# $ pip install -r <this file> --user .
-# platform: linux-64
-echonet=1.0=dev_0
-opencv-python=4.1.1.26=pypi_0
