@@ -12,6 +12,11 @@ import tqdm
 from . import video
 from . import segmentation
 
+# For making video display
+import matplotlib.pyplot as plt
+from matplotlib import animation, rc
+from IPython.display import HTML
+
 
 def loadvideo(filename: str) -> np.ndarray:
     """Loads a video from a file.
@@ -72,6 +77,49 @@ def savevideo(filename: str, array: np.ndarray, fps: typing.Union[float, int] = 
 
     for i in range(f):
         out.write(array[:, i, :, :].transpose((1, 2, 0)))
+        
+        
+
+def makeVideo(arr, cmap=None):
+    '''
+    makeVideo: given a 3 or 4D array (time x h x w [x 1]), returns an HTML animation 
+    of array for viewing in a notebook for example. Cell could say something like:
+
+    %%capture
+    # You want to capture the output when the actual call is made. 
+    vid = makeVideo(arr, cmap='gray')
+
+    with the following cell just
+
+    vid
+
+    '''
+    
+    if len(arr.shape) == 4 and arr.shape[-1] == 1: # one channel, otherwise imshow gets confused
+        arr = arr.squeeze()
+        print('New arr shape {}.'.format(arr.shape))
+    
+    f, ax = plt.subplots(1,1, figsize=(6,4))
+    dispArtist = ax.imshow(arr[0,...], interpolation=None, cmap=cmap)
+    
+    def updateFig(i):
+        # global dispArtist, arr # not sure why I don't need these: 
+        # See: https://www.geeksforgeeks.org/global-local-variables-python/
+        if i >= arr.shape[0]:
+            i = 0
+
+        dispArtist.set_array(arr[i,...])
+        return (dispArtist, )
+    
+    ani = animation.FuncAnimation(f, updateFig, interval=2000/arr.shape[0], 
+                                  frames = arr.shape[0], blit = True, repeat = False)
+    
+    # https://matplotlib.org/api/_as_gen/matplotlib.animation.FuncAnimation.html
+    # https://stackoverflow.com/questions/16732379/stop-start-pause-in-python-matplotlib-animation
+    # https://stackoverflow.com/questions/43445103/inline-animations-in-jupyter
+    # HTML(ani.to_html5_video()) didn't see a big difference in quality
+    return HTML(ani.to_jshtml()) # gives a nice button interface for pause and playback.
+
 
 
 def get_mean_and_std(dataset: torch.utils.data.Dataset,
@@ -175,4 +223,5 @@ def dice_similarity_coefficient(inter, union):
     return 2 * sum(inter) / (sum(union) + sum(inter))
 
 
-__all__ = ["video", "segmentation", "loadvideo", "savevideo", "get_mean_and_std", "bootstrap", "latexify", "dice_similarity_coefficient"]
+__all__ = ["video", "segmentation", "loadvideo", "savevideo", "makeVideo", \
+           "get_mean_and_std", "bootstrap", "latexify", "dice_similarity_coefficient"]

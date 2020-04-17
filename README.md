@@ -49,6 +49,17 @@ EchoNet-Dynamic is implemented for Python 3, and depends on the following packag
 Echonet-Dynamic and its dependencies can be installed by navigating to the cloned directory and running
 
     pip install --user .
+    
+### Installation -- jupyter-enabled
+
+- conda create --name dynamic37 --clone jupyter37
+- jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib@0.5.0
+- jupyter lab build
+
+The idea is to get dynamic with all the jupyterlab stuff. The problem is that dynamic's pip install --user .
+installs to the anaconda directory. Ick! 
+
+
 
 Usage
 -----
