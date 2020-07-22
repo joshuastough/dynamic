@@ -190,8 +190,8 @@ def run(num_epochs=45,
                 # Performance with test-time augmentation
                 ds = echonet.datasets.Echo(split=split, **kwargs, clips="all")
                 dataloader = torch.utils.data.DataLoader(
-                    ds, batch_size=1, num_workers=num_workers, shuffle=False, pin_memory=(device.type == "cuda"))
-                loss, yhat, y = echonet.utils.video.run_epoch(model, dataloader, False, None, device, save_all=True, block_size=100)
+                    ds, batch_size=1, num_workers=0, shuffle=False, pin_memory=(device.type == "cuda"))
+                loss, yhat, y = echonet.utils.video.run_epoch(model, dataloader, False, None, device, save_all=True, block_size=25)
                 f.write("{} (all clips) R2:   {:.3f} ({:.3f} - {:.3f})\n".format(split, *echonet.utils.bootstrap(y, np.array(list(map(lambda x: x.mean(), yhat))), sklearn.metrics.r2_score)))
                 f.write("{} (all clips) MAE:  {:.2f} ({:.2f} - {:.2f})\n".format(split, *echonet.utils.bootstrap(y, np.array(list(map(lambda x: x.mean(), yhat))), sklearn.metrics.mean_absolute_error)))
                 f.write("{} (all clips) RMSE: {:.2f} ({:.2f} - {:.2f})\n".format(split, *tuple(map(math.sqrt, echonet.utils.bootstrap(y, np.array(list(map(lambda x: x.mean(), yhat))), sklearn.metrics.mean_squared_error)))))
@@ -279,6 +279,7 @@ def run_epoch(model, dataloader, train, optim, device, save_all=False, block_siz
                 if average:
                     batch, n_clips, c, f, h, w = X.shape
                     X = X.view(-1, c, f, h, w)
+                    # print(f'{X.shape[0]} clips, whew...')
 
                 s1 += outcome.sum()
                 s2 += (outcome ** 2).sum()

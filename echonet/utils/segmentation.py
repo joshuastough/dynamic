@@ -263,7 +263,7 @@ def run(num_epochs=50,
 
                         # Write sizes and frames to file
                         for (frame, s) in enumerate(size):
-                            g.write("{},{},{},{},{},{}\n".format(f, 
+                            g.write("{},{},{},{},{},{}\n".format(filename, 
                                                                  frame, 
                                                                  s, 1 if frame == large_index[i] else 0, 1 if frame == small_index[i] else 0, 1 if frame in systole else 0))
 
